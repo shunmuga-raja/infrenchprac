@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "885308111983",
+    "project_id": "infrenchprac",
+    "storage_bucket": "infrenchprac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885308111983:android:1f7a03a37ad40b7e4aa19a",
+        "android_client_info": {
+          "package_name": "com.example.infrenchprac"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885308111983-bmo0ugocm1eu2ub9mvn31k10b26hhpp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBou9l0sDaGvBuAfEAHAxpF3Bqn-zyeuAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885308111983-bmo0ugocm1eu2ub9mvn31k10b26hhpp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
