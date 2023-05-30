@@ -29,7 +29,7 @@ class CustomTextField extends StatelessWidget {
       this.prefix,
       this.suffix,
       this.textInputAction,
-      this.validate});
+      this.validate, Container? suffixIcon});
 
   @override
   Widget build(BuildContext context) {

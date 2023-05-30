@@ -1,72 +1,51 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:infrenchprac/app_other/app_colors.dart';
-import 'package:infrenchprac/app_other/squaretile_field.dart';
+import 'package:infrenchprac/components/auth_provider.dart';
 import 'package:infrenchprac/components/custom_textfield.dart';
+import 'package:infrenchprac/components/user_model.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:infrenchprac/main_pages/auth_page.dart';
+import 'package:infrenchprac/main_pages/home_page.dart';
+import 'package:infrenchprac/responsive_widget/custom_button.dart';
 import 'package:infrenchprac/responsive_widget/resp_widget.dart';
-import 'package:infrenchprac/services/auth_signin_service.dart';
+import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
-  final Function()? onTap;
-  const RegisterPage({super.key, required this.onTap});
+  final String verificationId;
+  const RegisterPage({super.key, required this.verificationId});
 
   @override
   State<RegisterPage> createState() => _RegisterPage();
 }
 
 class _RegisterPage extends State<RegisterPage> {
+  String? otpCode;
   bool isPasswordShown = true;
-  final _formKey = GlobalKey<FormState>();
-  final _formData = Map<String, Object>();
+  bool isConfirmPasswordShown = true;
   bool isLoading = false;
-  final emailController = TextEditingController();
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
 
-  final passwordController = TextEditingController();
-  final confirmpasswordController = TextEditingController();
+   Country selectedCountry = Country(
+    phoneCode: "91",
+    countryCode: "IN",
+    e164Sc: 0,
+    geographic: true,
+    level: 1,
+    name: "India",
+    example: "India",
+    displayName: "India",
+    displayNameNoCountryCode: "IN",
+    e164Key: "",
+  );
 
-  void signinUser() async {
-    //show loading
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    //try sign in
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-      Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      //pop the loading circle
-      Navigator.pop(context);
-      //wrong email
-      showErrorMessage(e.code);
-    }
-  }
-
-  //error msg
-  void showErrorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.deepPurple,
-          title: Center(
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
+   @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    phoneController.dispose();
   }
 
   @override
@@ -145,30 +124,128 @@ class _RegisterPage extends State<RegisterPage> {
                           color: AppColors.textColor,
                         ),
                       ),
-                      SizedBox(height: height * 0.064),
-
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0),
+                      const SizedBox(height: 6.0),
+                      //Name textfield
+                       CustomTextField(
+                                    hintText: 'enter name',
+                                    textInputAction: TextInputAction.next,
+                                    keyboardtype: TextInputType.name,
+                                    prefix: Icon(Icons.person),
+                                    validate: (email) {
+                                      if (email!.isEmpty || email.length < 3) {
+                                        return 'enter correct name';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 6.0),
+                                  //phone textfield
+                          const SizedBox(height: 20),
+                TextFormField(
+                  cursorColor: Colors.purple,
+                  controller: phoneController,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      phoneController.text = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Enter phone number",
+                    hintStyle: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      color: Colors.grey.shade600,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black12),
+                    ),
+                    prefixIcon: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {
+                          showCountryPicker(
+                              context: context,
+                              countryListTheme: const CountryListThemeData(
+                                bottomSheetHeight: 550,
+                              ),
+                              onSelect: (value) {
+                                setState(() {
+                                  selectedCountry = value;
+                                });
+                              });
+                        },
                         child: Text(
-                          'Email',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            color: AppColors.blueDarkColor,
-                            fontWeight: FontWeight.w700,
+                          "${selectedCountry.flagEmoji} + ${selectedCountry.phoneCode}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
+                    ),
+                    suffixIcon: phoneController.text.length > 9
+                        ? Container(
+                            height: 30,
+                            width: 30,
+                            margin: const EdgeInsets.all(10.0),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.green,
+                            ),
+                            child: const Icon(
+                              Icons.done,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+                 const SizedBox(height: 6.0),
+                  CustomButton(
+                      text: "Get OTP", onPressed: () => sendPhoneNumber()),       
+                      //otp textfield
+                      const SizedBox(height: 6.0),
+                      Pinput(
+                        length: 6,
+                        showCursor: true,
+                        defaultPinTheme: PinTheme(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.purple.shade200,
+                            ),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onCompleted: (value) {
+                          setState(() {
+                            otpCode = value;
+                          });
+                        },
+                      ),     
                       const SizedBox(height: 6.0),
                       //email textfield
                       CustomTextField(
-                        controller: emailController,
                         hintText: 'enter email',
                         textInputAction: TextInputAction.next,
                         keyboardtype: TextInputType.emailAddress,
                         prefix: const Icon(Icons.person),
-                        onsave: (email) {
-                          _formData['email'] = email ?? "";
-                        },
                         validate: (email) {
                           if (email!.isEmpty ||
                               email.length < 3 ||
@@ -177,25 +254,11 @@ class _RegisterPage extends State<RegisterPage> {
                           }
                         },
                       ),
-
-                      //password headline
-                      SizedBox(height: height * 0.019),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0),
-                        child: Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            color: AppColors.blueDarkColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6.0),
+                      
+                       const SizedBox(height: 6.0),
 
                       //password textfield
                       CustomTextField(
-                        controller: passwordController,
                         hintText: 'enter password',
                         isPassword: isPasswordShown,
                         prefix: const Icon(Icons.vpn_key_rounded),
@@ -205,9 +268,6 @@ class _RegisterPage extends State<RegisterPage> {
                           }
                           return null;
                         },
-                        onsave: (password) {
-                          _formData['password'] = password ?? "";
-                        },
                         suffix: IconButton(
                             onPressed: () {
                               setState(() {
@@ -218,23 +278,10 @@ class _RegisterPage extends State<RegisterPage> {
                                 ? const Icon(Icons.visibility_off)
                                 : const Icon(Icons.visibility)),
                       ),
-                      SizedBox(height: height * 0.019),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 16.0),
-                        child: Text(
-                          'Confirm Password',
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            color: AppColors.blueDarkColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 8.0),
 
                       //confirm password textfield
                       CustomTextField(
-                        controller: passwordController,
                         hintText: 'confirm password',
                         isPassword: isPasswordShown,
                         prefix: const Icon(Icons.vpn_key_rounded),
@@ -244,28 +291,29 @@ class _RegisterPage extends State<RegisterPage> {
                           }
                           return null;
                         },
-                        onsave: (password) {
-                          _formData['password'] = password ?? "";
-                        },
                         suffix: IconButton(
                             onPressed: () {
                               setState(() {
-                                isPasswordShown = !isPasswordShown;
+                                isConfirmPasswordShown = !isConfirmPasswordShown;
                               });
                             },
-                            icon: isPasswordShown
+                            icon: isConfirmPasswordShown
                                 ? const Icon(Icons.visibility_off)
                                 : const Icon(Icons.visibility)),
                       ),
 
-                      //signin button
+                      //signUp button
                       SizedBox(height: height * 0.05),
                       Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
-                            signinUser;
-                          },
+                          onTap: () {  if (otpCode != null) {
+                              verifyOtp(context, otpCode!);
+                            } else {
+                              showSnackBar(context, "Enter 6-Digit code");
+                            }
+                                      storeData();  
+                                      },
                           borderRadius: BorderRadius.circular(16.0),
                           child: Ink(
                             padding: const EdgeInsets.symmetric(
@@ -302,63 +350,28 @@ class _RegisterPage extends State<RegisterPage> {
                           ],
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 120.0),
-                        child: Text(
-                          "Or continue with",
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: AppColors.blueDarkColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: height * 0.05),
-                      // google sign in buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SquareTile(
-                            onTap: () => AuthService().signInWithGoogle(),
-                            imagePath: 'assets/Google_Logo.png',
-                          ),
-
-                          //apple signin
-                          const SizedBox(width: 10),
-                          SquareTile(
-                            onTap: () {},
-                            imagePath: 'assets/Apple_logo.png',
-                          ),
-
-                          //facebook signin
-                          const SizedBox(width: 15),
-                          SquareTile(
-                            onTap: () {},
-                            imagePath: 'assets/facebook_logo.png',
-                          ),
-                        ],
-                      ),
+                      
 
                       SizedBox(height: height * 0.015),
                       //register
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Already have an account',
+                        children: const [
+                          Text(
+                            'Already have an account?',
                             style: TextStyle(
                                 color: Color.fromARGB(255, 74, 74, 74)),
                           ),
-                          const SizedBox(width: 5),
-                          GestureDetector(
-                            onTap: widget.onTap,
-                            child: const Text(
-                              'Log In',
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
+                          SizedBox(width: 5),
+                          //GestureDetector(
+                            //onTap: widget.onTap,
+                            //child: const Text(
+                             // 'Log In',
+                              //style: TextStyle(
+                                  //color: Colors.blue,
+                                  //fontWeight: FontWeight.bold),
+                            //),
+                         // ),
                         ],
                       )
                     ],
@@ -371,4 +384,79 @@ class _RegisterPage extends State<RegisterPage> {
       ),
     );
   }
+    // store user data to database
+  void storeData() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    UserModel userModel = UserModel(
+      name: nameController.text.trim(),
+      email: phoneController.text.trim(),
+      createdAt: "",
+      phoneNumber: "",
+      uid: "",
+    );
+    
+      ap.saveUserDataToFirebase(
+        context: context,
+        userModel: userModel,
+        
+        onSuccess: () => Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                          (route) => false),
+      );
+}
+void sendPhoneNumber() {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    String phoneNumber = phoneController.text.trim();
+    ap.signInWithPhone(context, "+$phoneNumber");
+  }
+
+    // verify otp
+  void verifyOtp(BuildContext context, String userOtp) {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    ap.verifyOtp(
+      context: context,
+      verificationId: widget.verificationId,
+      userOtp: userOtp,
+      onSuccess: () {
+        // checking whether user exists in the db
+        ap.checkExistingUser().then(
+          (value) async {
+            if (value == true) {
+              // user exists in our app
+              ap.getDataFromFirestore().then(
+                    (value) => ap.saveUserDataToSP().then(
+                          (value) => ap.setSignIn().then(
+                                (value) => Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HomePage(),
+                                    ),
+                                    (route) => false),
+                              ),
+                        ),
+                  );
+            } else {
+              // new user
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AuthPage()),
+                  (route) => false);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void showSnackBar(BuildContext context, String content) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(content),
+    ),
+  );
+}
 }

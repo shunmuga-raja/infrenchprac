@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:infrenchprac/app_other/app_colors.dart';
-import 'package:infrenchprac/app_other/squaretile_field.dart';
 import 'package:infrenchprac/components/custom_textfield.dart';
 import 'package:infrenchprac/responsive_widget/resp_widget.dart';
 import 'package:infrenchprac/services/auth_signin_service.dart';
@@ -17,8 +16,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool isPasswordShown = true;
-  final _formKey = GlobalKey<FormState>();
-  final _formData = Map<String, Object>();
   bool isLoading = false;
   final emailController = TextEditingController();
 
@@ -165,9 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         textInputAction: TextInputAction.next,
                         keyboardtype: TextInputType.emailAddress,
                         prefix: const Icon(Icons.person),
-                        onsave: (email) {
-                          _formData['email'] = email ?? "";
-                        },
                         validate: (email) {
                           if (email!.isEmpty ||
                               email.length < 3 ||
@@ -203,9 +197,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             return 'enter correct password';
                           }
                           return null;
-                        },
-                        onsave: (password) {
-                          _formData['password'] = password ?? "";
                         },
                         suffix: IconButton(
                             onPressed: () {
