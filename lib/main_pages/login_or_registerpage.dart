@@ -26,8 +26,8 @@ class _LoginOrRegisterPageState extends State<LoginOrRegisterPage> {
       );
     }else{
       return RegisterPage(
-        //onTap: tooglePage,
-        verificationId: 'verificationId', onTap: () {  },
+        onTap: tooglePage,
+        verificationId: 'verificationId',
       );
     }
   }
