@@ -13,8 +13,9 @@ import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
+  final Function()? onTap;
   final String verificationId;
-  const RegisterPage({super.key, required this.verificationId});
+  const RegisterPage({super.key, required this.verificationId, required this.onTap});
 
   @override
   State<RegisterPage> createState() => _RegisterPage();
@@ -356,22 +357,22 @@ class _RegisterPage extends State<RegisterPage> {
                       //register
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
+                        children:  [
+                          const Text(
                             'Already have an account?',
                             style: TextStyle(
                                 color: Color.fromARGB(255, 74, 74, 74)),
                           ),
                           SizedBox(width: 5),
-                          //GestureDetector(
-                            //onTap: widget.onTap,
-                            //child: const Text(
-                             // 'Log In',
-                              //style: TextStyle(
-                                  //color: Colors.blue,
-                                  //fontWeight: FontWeight.bold),
-                            //),
-                         // ),
+                          GestureDetector(
+                            onTap: widget.onTap,
+                            child: const Text(
+                              'Log In',
+                              style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ],
                       )
                     ],
