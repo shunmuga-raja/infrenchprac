@@ -56,7 +56,7 @@ class AuthProvider extends ChangeNotifier {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RegisterPage(verificationId: verificationId),
+                builder: (context) => RegisterPage(verificationId: verificationId, onTap: () {  },),
               ),
             );
           },
