@@ -22,7 +22,7 @@ class _LoginOrRegisterPageState extends State<LoginOrRegisterPage> {
   Widget build(BuildContext context) {
     if(showLoginPage){
       return LoginScreen(
-        onTap: tooglePage,
+        onTap: tooglePage, verificationId: 'verificationId',
       );
     }else{
       return RegisterPage(
